@@ -23,10 +23,7 @@ complete <- function(directory, id = 1:332) {
         # try-catch it, but I'm not sure how error handling works in R right now
         
         stationIds <- c(stationIds, station)
-        numObs <- c(numObs,                        # summing the actual obs
-                sum(!is.na(stationData["sulfate"])) + 
-                sum(!is.na(stationData["nitrate"]))
-        )
+        numObs <- c(numObs, nrow(na.omit(stationData))) # counting rows without nas
     }
     
     # assembling for output
