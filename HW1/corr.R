@@ -10,7 +10,7 @@ corr <- function(directory, threshold = 0) {
     correlations <- vector()
     
     # we're still here, let's iteratively examine each csv file in the provided dir
-    for(csv in list.files(path = directory, pattern = "*.csv")) {
+    for(csv in list.files(path = directory, pattern = "*.csv"m full.names = TRUE)) {
         
         file <- read.csv(csv)
         
