@@ -7,7 +7,7 @@ corr <- function(directory, threshold = 0) {
     }
     
     # need to store our list of correlations somewhere
-    correlations <- vector('numeric')
+    correlations <- numeric()
     
     # we're still here, let's iteratively examine each csv file in the provided dir
     for(csv in list.files(path = directory, pattern = "*.csv", full.names = TRUE)) {

@@ -7,8 +7,8 @@ complete <- function(directory, id = 1:332) {
     }
     
     # instantiating empty vectors to add to later
-    stationIds <- vector()
-    numObs <- vector()
+    stationIds <- numeric()
+    numObs <- numeric()
     
     # we're still here? Great, let's loop!
     for (station in id) {
