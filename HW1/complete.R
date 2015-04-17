@@ -30,7 +30,7 @@ complete <- function(directory, id = 1:332) {
     }
     
     # assembling for output
-    output <- data.frame(stationIds, numbObs)
+    output <- data.frame(stationIds, numObs)
     names(output) <- c("id", "nobs")
     output  
 }
