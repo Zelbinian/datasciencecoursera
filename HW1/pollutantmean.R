@@ -6,14 +6,24 @@ pollutantmean <- function(directory = "specdata", pollutant, id = 1:332) {
         stop(paste("The provided directory '", directory, "' does not exist."))
     }
     
-    # need to loop through the files we care about, find the pollutant, and 
-    #for (station in id) {
+    # variables we'll need for the final calculation
+    pollutantSum <- 0
+    numEntries <- 0
+    
+    # we're still here? Great, let's loop!
+    for (station in id) {
         
-        # 
-    #    stationDataCSV <- paste(paste(directory,id,sep='/'),".csv",sep=''
-                                
-    #                            stationData <- read.csv(directory)
-                                
-    #}
+        # building the file name separately for better code readability
+        file <- paste0(directory, '/', formatC(station, width = 3, flag = 0), '.csv')                      
+        
+        stationData <- read.csv(file)   
+        p <- stationData[pollutant]     
+        p <- p[!is.na(p)]               # clearing out NA values
+        
+        pollutantSum <- pollutantSum + sum(p)
+        numEntries <- numEntries + length(p)
+    }
+    
+    pollutantSum / numEntries   # finally, return the mean
     
 }
