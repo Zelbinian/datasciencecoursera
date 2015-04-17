@@ -15,14 +15,12 @@ corr <- function(directory, threshold = 0) {
         file <- read.csv(csv)
         
         # if threshold is zero, not much to do
-        if (threshold == 0) {
-            
-            correlations <- c(correlations, cor(file["nitrate"], file["sulfate"]))
-            
-        } else if (nrow(na.omit(file)) > threshold) {
+        if (nrow(na.omit(file)) > threshold) {
             
             correlations <- c(correlations, cor(file["nitrate"], file["sulfate"]))
             
         }
     }
+    
+    correlations
 }
