@@ -16,6 +16,6 @@ NEI <- readRDS("summarySCC_PM25.rds")
 pm25sums <- with(NEI, tapply(Emissions, as.factor(year), sum))
 
 # like my art skills?
-plot(names(pm25sums), pm25sums, type = "b", col = "blue", xlab = "Year", 
+plot(names(pm25sums), pm25sums, type = "b", col = "blue", xlab = "Year", xaxt = "n",
      ylab = "Total PM2.5 Emissions", main = "Trendline of PM2.5 Emissions in the United States")
-text(c(1999, 2002, 2005, 2008), pm25sums, names(pm25sums), pos = c(1,1,1,2))
+axis(1, names(pm25sums))
