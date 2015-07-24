@@ -11,3 +11,11 @@ if(length(dir(pattern = fileRegEx)) != 2) {
 
 # k, let's take a look
 NEI <- readRDS("summarySCC_PM25.rds")
+
+# gotta sum this sucka
+pm25sums <- with(NEI, tapply(Emissions, as.factor(year), sum))
+
+# like my art skills?
+plot(names(pm25sums), pm25sums, type = "b", col = "blue", xlab = "Year", 
+     ylab = "Total PM25 Emissions", main = "Trendline of PM25 Emissions over Time")
+text(c(1999, 2002, 2005, 2008), pm25sums, names(pm25sums), pos = c(1,1,1,2))
