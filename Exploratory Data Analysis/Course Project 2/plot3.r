@@ -11,3 +11,7 @@ if(length(dir(pattern = fileRegEx)) != 1) {
 
 # k, let's take a look
 NEI <- readRDS("summarySCC_PM25.rds")
+
+# gonna only look at Baltimore; sorry NYC maybe next time
+NEIbalt <- NEI[NEI$fips == "24510",]
+
