@@ -23,7 +23,7 @@ NEIbalt <- NEI[NEI$fips == "24510",]
 tebt <- group_by(NEIbalt, type, year) %>% summarize(totEmissions = sum(Emissions))
 
 # alriiiight, now watch my fancy pixel work
-png("plot3.png")
+png("plot3.png",width = 600)
 qplot(year, totEmissions, data = tebt, color = type, geom = 'line', 
       main = "Pollutants in Baltimore Over Time", xlab = "Year", ylab="Total Emissions")
 dev.off()
