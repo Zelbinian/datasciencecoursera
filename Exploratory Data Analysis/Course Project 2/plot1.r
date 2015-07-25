@@ -17,7 +17,7 @@ pm25sums <- with(NEI, tapply(Emissions, as.factor(year), sum))
 
 # like my art skills?
 png("plot1.png")
-plot(names(pm25sums), pm25sums, type = "b", col = "blue", xlab = "Year", xaxt = "n",
+plot(names(pm25sums), pm25sums, type = "b", col = "blue", lwd = 2, xlab = "Year", xaxt = "n",
      yaxt = "n", ylim = c(3000000,8000000), ylab = "Total PM2.5 Emissions (millions)",
      main = "Trendline of PM2.5 Emissions in the United States")
 axis(1, names(pm25sums))

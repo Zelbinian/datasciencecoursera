@@ -27,7 +27,7 @@ pm25sums <- with(coalPollutants, tapply(Emissions, as.factor(year), sum))
 # hang this on yo fridge
 png("plot4.png")
 plot(names(pm25sums), pm25sums, type = "b", col = "red", xlab = "Year", xaxt = "n",
-     ylab = "Total PM2.5 Emissions",
+     ylab = "Total PM2.5 Emissions", lwd = 2,
      main = "Trendline of Coal Emissions in the United States")
 axis(1, names(pm25sums))
 dev.off()

@@ -20,7 +20,7 @@ pm25sums <- with(NEIbalt, tapply(Emissions, as.factor(year), sum))
 
 # i made you this picture - you like it?
 png("plot2.png")
-plot(names(pm25sums), pm25sums, type = "b", col = "blue", xlab = "Year", xaxt = "n",
+plot(names(pm25sums), pm25sums, type = "b", col = "brown", lwd = 2, xlab = "Year", xaxt = "n",
      ylab = "Total PM2.5 Emissions", main = "Trendline of PM2.5 Emissions in Baltimore")
 axis(1, names(pm25sums))
 dev.off()
