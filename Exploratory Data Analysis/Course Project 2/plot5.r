@@ -29,6 +29,6 @@ pm25sums <- with(baltCarPollutants, tapply(Emissions, as.factor(year), sum))
 png("plot5.png")
 plot(names(pm25sums), pm25sums, type = "b", col = "purple", xlab = "Year", xaxt = "n",
      lwd = 2, ylab = "Total PM2.5 Emissions",
-     main = "Trendline of Vehicle Emissions in the Baltimore")
+     main = "Trendline of Vehicle Emissions in Baltimore")
 axis(1, names(pm25sums))
 dev.off()
