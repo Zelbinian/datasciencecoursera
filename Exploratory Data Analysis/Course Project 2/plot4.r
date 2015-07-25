@@ -1,7 +1,3 @@
-# lock 'n load
-require(ggplot2)
-require(dplyr)
-
 # yo, you got my files?
 fileRegEx = "summarySCC_PM25.rds|Source_Classification_Code.rds"
 
@@ -30,7 +26,7 @@ pm25sums <- with(coalPollutants, tapply(Emissions, as.factor(year), sum))
 
 # hang this on yo fridge
 png("plot4.png")
-plot(names(pm25sums), pm25sums, type = "b", col = "blue", xlab = "Year", xaxt = "n",
+plot(names(pm25sums), pm25sums, type = "b", col = "red", xlab = "Year", xaxt = "n",
      ylab = "Total PM2.5 Emissions",
      main = "Trendline of Coal Emissions in the United States")
 axis(1, names(pm25sums))
