@@ -5,4 +5,12 @@ date: "Monday, October 19, 2015"
 output: html_document
 ---
 
+# Data Processing
 
+Downloading, unpacking, and loading in CSV data file.
+```{r cache=TRUE}
+fileName <- "StormData.bz2" # setting once to avoid typos
+download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",
+                  fileName)
+rawStormData <- read.csv(fileName)
+```
