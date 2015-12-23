@@ -52,6 +52,33 @@ stateStormData$BGN_DATE <- parse_date_time(stateStormData$BGN_DATE, "m/d/y H:M:S
 relStateStormData <- stateStormData[year(stateStormData$BGN_DATE) > 2000,]
 ```
 
+## Collapsing Events
+
+The `EVTYPE` field, representing the weather events we care about, is rather chaotic.
+
+```{r}
+relStateStormData %>% group_by(EVTYPE) %>% summarize(no_rows = length(EVTYPE))
+```
+
+159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we're doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)
+
+```{r}
+# first, trimming out whitespace and enforcing consistent capitalization
+relStateStormData$EVTYPE <- trimws(toupper(relStateStormData$EVTYPE))
+
+# -----same difference!-----------
+# coastal flooding and erosion
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("COASTAL FLOOD","BEACH EROSION", "CSTL FLOODING/EROSION")] <- "COASTAL FLOODING"
+# cooooooold
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("COLD", "COLD WEATHER", "COLD WIND CHILL TEMPERATURES",
+                               "UNSEASONABLY COLD", "UNSEASONABLY COOL", "UNUSUALLY COLD")] <- "COLD/WIND CHILL"
+# flood stuff. i'm gonna say "abnormally wet" counts as a flood? probably "drowning" too
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("ABNORMALLY WET","DROWNING")] <- "FLOOD"
+```
+
 ### By Relevant Data
 
 Next, we need to reduce the data set to the observations that we care about with respect to each question. `EVTYPE` is important for both pieces of analysis but, now that we've already restricted the dataset by geography, most of the other 36 columns are just noise. For determining effects of various storms on population health, we only need to look at the `FATALITIES` and `INJURIES` columns.
@@ -134,24 +161,6 @@ dmgSubset <- mutate(dmgSubset, PROPTOT = PROPDMG * PROPDMGEXP,
                                CROPTOT = CROPDMG * CROPDMGEXP)
 ```
 
-### The Main Events
-
-The `EVTYPE` field, representing the weather events we care about, is complete chaos.
-
-```{r}
-dmgSubset %>% group_by(EVTYPE) %>% summarize(no_rows = length(EVTYPE))
-```
-
-952 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. Inline comments will explain reasoning where appropriate. (You are forgiven for falling asleep.)
-
-```{r}
-# first, trimming out whitespace and enforcing consistent capitalization
-dmgSubset$EVTYPE <- trimws(toupper(dmgSubset$EVTYPE))
-# dropping the one named "?" because... "?"
-dmgSubset <- dmgSubset[dmgSubset$EVTYPE != '?']
-# dealing with obvious typos
-dmgSubset <-
-```
 
 # Results
 Questions:
