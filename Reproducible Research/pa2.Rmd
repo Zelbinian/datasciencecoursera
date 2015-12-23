@@ -36,7 +36,7 @@ stateStormData <- rawStormData[rawStormData$STATE_ <= 56,]
 
 It's not immediately obvious where the number `56` comes from because there are 50 states. 51 was my first guess (to include the District of Colmbia), but according to the official [FIPS table](http://www.columbia.edu/~sue/state-fips.html), it's 56. (If you look closely, 5 numbers are omitted entirely; I'm sure there's a story there, but that's someone else's project!)
 
-## By Relevant Data
+### By Relevant Data
 
 Next, we need to reduce the data set to the observations that we care about with respect to each question. `EVTYPE` is important for both pieces of analysis but, now that we've already restricted the dataset by geography, most of the other 36 columns are just noise. For determining effects of various storms on population health, we only need to look at the `FATALITIES` and `INJURIES` columns.
 
@@ -63,6 +63,25 @@ And, again, we thank our lucky starts that we don't have to deal with any missin
 ```{r}
 sum(is.na(dmgSubset$CROPDMG), is.na(dmgSubset$PROPDMG))
 ```
+
+### Showing You the Money
+
+No further processing is needed on the health subset, but the damage subset is a little strange. Likely in an effort to save a little space, instead of listing raw dollar values in one column the data set has each value represented in *two* columns. The `*DMG` columns have raw decimal numbers but `*DMGEXP` columns have a coded multiplier. For example, if, for a given obsevation, there's the number `25.00` in the `PROPDMG` column and the symbol `K` in the `PROPDMGEXP` column, K is an abbreviation for `1000`. So, for this example, the storm would have caused $25,000 in damage. It's relatively human-readable because the chosen codes are common abbreviations for large numbers, but it's not computer readable. That won't do for making pretty graphs!
+
+However, this is also when we start to have to deal some data entry errors. Officially, 'H', 'K', 'M', and 'B' (standing for 'Hundreds,' 'Thousands,' 'Millions,' and 'Billions,' respectively) and a blank (meaning a mult. of 1) are supposed to be the only codes. But if we examine all the factors for the `PROPDMGEXP` variable in the `dmgSubset` data, we see this isn't quite the case. (The other data set has some similar weirdness, but not nearly as much.)
+
+```{r}
+#dplyr will make this infinitely easier
+library(dplyr)
+dmgSubset %>% group_by(PROPDMGEXP) %>% summarize(no_rows = length(PROPDMGEXP))
+```
+
+Capitalization errors are easy to deal with. The rest, though... One row may only be a $20 line-item. With almost 900K observations that doesn't matter so much. Or it may be a *$20B* line-item, and then it matters *a lot*! For the most part, I'm deciding to omit the observations because, if I can't tell the intent then I shouldn't assume it. Here's what I will be including in the analysis and why:
+
+  - **lowercase codes** - This intent here is obvious, but I'm calling it out to be thorough. These will be treated exactly like their uppercase brethren.
+ - **"0", "1"** - For the numerals, the intent is fairly easy to presume. These will be treated like a multiplier of 1. 
+ - **"-", "+"** - This is a tougher call. However, the '+' and '-' are so close to the number 0 on most keyboards - and there are so few of these type of entries - that I'm going to take the risk and assume the intent was a multiplier of 1.
+ - **all other codes**  - These will be omitted, but in a piecemeal fashion. i.e, I'm not going to drop the entire row, but simply not include the values when computing property damage or crop damage.
 
 # Results
 Questions:

@@ -88,9 +88,8 @@ rm(fileName) #don't need this variable anymore</code></pre>
 <pre class="r"><code>stateStormData &lt;- rawStormData[rawStormData$STATE_ &lt;= 56,]</code></pre>
 <p>It’s not immediately obvious where the number <code>56</code> comes from because there are 50 states. 51 was my first guess (to include the District of Colmbia), but according to the official <a href="http://www.columbia.edu/~sue/state-fips.html">FIPS table</a>, it’s 56. (If you look closely, 5 numbers are omitted entirely; I’m sure there’s a story there, but that’s someone else’s project!)</p>
 </div>
-</div>
-<div id="by-relevant-data" class="section level2">
-<h2>By Relevant Data</h2>
+<div id="by-relevant-data" class="section level3">
+<h3>By Relevant Data</h3>
 <p>Next, we need to reduce the data set to the observations that we care about with respect to each question. <code>EVTYPE</code> is important for both pieces of analysis but, now that we’ve already restricted the dataset by geography, most of the other 36 columns are just noise. For determining effects of various storms on population health, we only need to look at the <code>FATALITIES</code> and <code>INJURIES</code> columns.</p>
 <pre class="r"><code>popHealthSubset &lt;- subset(stateStormData, select = c(EVTYPE, FATALITIES, INJURIES))</code></pre>
 <p>And, luckily, there are no missing values in the dataset.</p>
@@ -101,6 +100,54 @@ rm(fileName) #don't need this variable anymore</code></pre>
 <p>And, again, we thank our lucky starts that we don’t have to deal with any missing data.</p>
 <pre class="r"><code>sum(is.na(dmgSubset$CROPDMG), is.na(dmgSubset$PROPDMG))</code></pre>
 <pre><code>## [1] 0</code></pre>
+</div>
+<div id="showing-you-the-money" class="section level3">
+<h3>Showing You the Money</h3>
+<p>No further processing is needed on the health subset, but the damage subset is a little strange. Likely in an effort to save a little space, instead of listing raw dollar values in one column the data set has each value represented in <em>two</em> columns. The <code>*DMG</code> columns have raw decimal numbers but <code>*DMGEXP</code> columns have a coded multiplier. For example, if, for a given obsevation, there’s the number <code>25.00</code> in the <code>PROPDMG</code> column and the symbol <code>K</code> in the <code>PROPDMGEXP</code> column, K is an abbreviation for <code>1000</code>. So, for this example, the storm would have caused $25,000 in damage. It’s relatively human-readable because the chosen codes are common abbreviations for large numbers, but it’s not computer readable. That won’t do for making pretty graphs!</p>
+<p>However, this is also when we start to have to deal some data entry errors. Officially, ‘H’, ‘K’, ‘M’, and ‘B’ (standing for ‘Hundreds,’ ‘Thousands,’ ‘Millions,’ and ‘Billions,’ respectively) and a blank (meaning no multiplier) are supposed to be the only codes. But if we examine all the factors for the <code>PROPDMGEXP</code> variable in the <code>dmgSubset</code> data, we see this isn’t quite the case. (The other data set has some similar weirdness, but not nearly as much.)</p>
+<pre class="r"><code>#dplyr will make this infinitely easier
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>dmgSubset %&gt;% group_by(PROPDMGEXP) %&gt;% summarize(no_rows = length(PROPDMGEXP))</code></pre>
+<pre><code>## Source: local data frame [19 x 2]
+## 
+##    PROPDMGEXP no_rows
+## 1              456415
+## 2           -       1
+## 3           ?       8
+## 4           +       5
+## 5           0     216
+## 6           1      25
+## 7           2      13
+## 8           3       4
+## 9           4       4
+## 10          5      28
+## 11          6       4
+## 12          7       5
+## 13          8       1
+## 14          B      39
+## 15          h       1
+## 16          H       6
+## 17          K  415581
+## 18          m       7
+## 19          M   11260</code></pre>
+<p>Capitalization errors are easy to deal with. The rest, though… One row may only be a $20 line-item. With almost 900K observations that doesn’t matter so much. Or it may be a <em>$20B</em> line-item, and then it matters <em>a lot</em>! For the most part, I’m deciding to omit the observations because, if I can’t tell the intent then I shouldn’t assume it. Here’s what I will be including in the analysis and why:</p>
+<ul>
+<li><strong>lowercase codes</strong> - This intent here is obvious, but I’m calling it out to be thorough. These will be treated exactly like their uppercase brethren.</li>
+<li>**“0”, “1”, and &quot; “** - For the numerals, the intent is fairly easy to presume. These will be treated like a multiplier of 1.</li>
+<li><strong>“-”, “+”</strong> - This is a tougher call. However, the ‘+’ and ‘-’ are so close to the number 0 on most keyboards - and there are so few of these type of entries - that I’m going to take the risk and assume the intent was a multiplier of 1.</li>
+<li><strong>all other codes</strong> - These will be omitted, but in a piecemeal fashion. i.e, I’m not going to drop the entire row, but simply not include the values when computing property damage or crop damage.</li>
+</ul>
+</div>
 </div>
 </div>
 <div id="results" class="section level1">
