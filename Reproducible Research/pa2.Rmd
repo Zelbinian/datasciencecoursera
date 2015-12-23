@@ -118,6 +118,18 @@ dmgSubset <- mutate(dmgSubset, PROPTOT = PROPDMG * PROPDMGEXP,
                                CROPTOT = CROPDMG * CROPDMGEXP)
 ```
 
+### The Main Events
+
+The `EVTYPE` field, representing the weather events we care about, is complete chaos.
+
+```{r}
+dmgSubset %>% group_by(EVTYPE) %>% summarize(no_rows = length(EVTYPE))
+```
+
+952 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. Inline comments will explain reasoning where appropriate
+
+
+
 # Results
 Questions:
 1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
