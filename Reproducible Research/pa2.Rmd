@@ -10,6 +10,12 @@ output: html_document
 
 # Data Processing
 
+```{r echo=FALSE}
+library(magrittr)
+library(dplyr)
+library(lubridate)
+```
+
 ## Reading in the Data
 
 Downloading, unpacking, and loading in CSV data file.
@@ -46,8 +52,6 @@ A lot of the data here is really old. There's a few reasons to be concerned abou
 We want a large enough subset of the data that we can be sure that we're getting a feel that we can generalize historically, but not so large that the above are issues. The turn of the centry is a psychologically statisfying number, we'll just have to hope it's statistically satisfying, too.
 
 ```{r}
-library(lubridate)
-
 stateStormData$BGN_DATE <- parse_date_time(stateStormData$BGN_DATE, "m/d/y H:M:S")
 relStateStormData <- stateStormData[year(stateStormData$BGN_DATE) > 2000,]
 ```
@@ -114,8 +118,6 @@ No further processing is needed on the health subset, but the damage subset is a
 However, this is also when we start to have to deal some data entry errors. Officially, 'H', 'K', 'M', and 'B' (standing for 'Hundreds,' 'Thousands,' 'Millions,' and 'Billions,' respectively) and a blank (meaning a mult. of 1) are supposed to be the only codes. But if we examine all the factors for the `PROPDMGEXP` variable in the `dmgSubset` data, we see this isn't quite the case. (The other data set has some similar weirdness, but not nearly as much.)
 
 ```{r}
-#dplyr will make this infinitely easier
-library(dplyr)
 dmgSubset %>% group_by(PROPDMGEXP) %>% summarize(no_rows = length(PROPDMGEXP))
 ```
 
