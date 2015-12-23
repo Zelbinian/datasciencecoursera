@@ -23,6 +23,8 @@ rm(fileName) #don't need this variable anymore
 
 ## Smart Subsetting
 
+### By Geography
+
 We're only concerned with storm effects in the United States proper, not the various islands and territories, so it's a good idea to eliminate them from the dataset under analysis. To do this, we subset the raw data based on the provided FIPS codes in column `STATE_`.
 
 ```{r}
@@ -31,6 +33,8 @@ stateStormData <- rawStormData[rawStormData$STATE_ <= 56,]
 
 It's not immediately obvious where the number `56` comes from because there are 50 states. 51 was my first guess (to include the District of Colmbia), but according to the official [FIPS table](http://www.columbia.edu/~sue/state-fips.html), it's 56. (If you look closely, 5 numbers are omitted entirely; I'm sure there's a story there, but that's someone else's project!)
 
+## By Relevant Data
+
 Next, we need to reduce the data set to the observations that we care about with respect to each question. `EVTYPE` is important for both pieces of analysis but, now that we've already restricted the dataset by geography, most of the other 36 columns are just noise. For determining effects of various storms on population health, we only need to look at the `FATALITIES` and `INJURIES` columns.
 
 ```{r}
@@ -38,7 +42,24 @@ popHealthSubset <- subset(stateStormData, select = c(EVTYPE, FATALITIES, INJURIE
 
 ```
 
+And, luckily, there are no missing values in the dataset.
 
+```{r}
+sum(is.na(popHealthSubset$FATALITIES), is.na(popHealthSubset$INJURIES))
+```
+
+The subset we need for assessing economic consequences is slightly bigger, but not by much. The columns `PROPDMG` and `PROPDMGXP` together explain damaged to property;likewise `CROPDMG` and `CROPDMGEXP` explain damage to crops (in terms of dollar value loss).
+
+```{r}
+dmgSubset <- subset(stateStormData, select = c(EVTYPE, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP))
+
+```
+
+And, again, we thank our lucky starts that we don't have to deal with any missing data.
+
+```{r}
+sum(is.na(dmgSubset$CROPDMG), is.na(dmgSubset$PROPDMG))
+```
 
 # Results
 Questions:
