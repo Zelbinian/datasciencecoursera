@@ -126,9 +126,16 @@ The `EVTYPE` field, representing the weather events we care about, is complete c
 dmgSubset %>% group_by(EVTYPE) %>% summarize(no_rows = length(EVTYPE))
 ```
 
-952 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. Inline comments will explain reasoning where appropriate
+952 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. Inline comments will explain reasoning where appropriate. (You are forgiven for falling asleep.)
 
-
+```{r}
+# first, trimming out whitespace and enforcing consistent capitalization
+dmgSubset$EVTYPE <- trimws(toupper(dmgSubset$EVTYPE))
+# dropping the one named "?" because... "?"
+dmgSubset <- dmgSubset[dmgSubset$EVTYPE != '?']
+# dealing with obvious typos
+dmgSubset <-
+```
 
 # Results
 Questions:
