@@ -114,7 +114,8 @@ dmgSubset$CROPDMGEXP <- as.integer(dmgSubset$PROPDMGEXP)
 Last thing to do is make a few new columns to reprepsent the total property damage and total crop damage, respectively, for each entry.
 
 ```{r}
-
+dmgSubset <- mutate(dmgSubset, PROPTOT = PROPDMG * PROPDMGEXP,
+                               CROPTOT = CROPDMG * CROPDMGEXP)
 ```
 
 # Results
