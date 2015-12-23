@@ -36,6 +36,22 @@ stateStormData <- rawStormData[rawStormData$STATE_ <= 56,]
 
 It's not immediately obvious where the number `56` comes from because there are 50 states. 51 was my first guess (to include the District of Colmbia), but according to the official [FIPS table](http://www.columbia.edu/~sue/state-fips.html), it's 56. (If you look closely, 5 numbers are omitted entirely; I'm sure there's a story there, but that's someone else's project!)
 
+### By Date
+
+A lot of the data here is really old. There's a few reasons to be concerned about this:
+
+ - Inflation rates are a big deal. A $1M storm today is not the same as a $1M storm in 1955.
+ - Methodologies for assessing storm damage may well have changed in the intervening years.
+ 
+We want a large enough subset of the data that we can be sure that we're getting a feel that we can generalize historically, but not so large that the above are issues. The turn of the centry is a psychologically statisfying number, we'll just have to hope it's statistically satisfying, too.
+
+```{r}
+library(lubridate)
+
+stateStormData$BGN_DATE <- parse_date_time(stateStormData$BGN_DATE, "m/d/y H:M:S")
+relStateStormData <- stateStormData[year(stateStormData$BGN_DATE) > 2000,]
+```
+
 ### By Relevant Data
 
 Next, we need to reduce the data set to the observations that we care about with respect to each question. `EVTYPE` is important for both pieces of analysis but, now that we've already restricted the dataset by geography, most of the other 36 columns are just noise. For determining effects of various storms on population health, we only need to look at the `FATALITIES` and `INJURIES` columns.
