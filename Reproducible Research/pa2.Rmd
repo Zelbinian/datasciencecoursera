@@ -81,7 +81,41 @@ Capitalization errors are easy to deal with. The rest, though... One row may onl
   - **lowercase codes** - This intent here is obvious, but I'm calling it out to be thorough. These will be treated exactly like their uppercase brethren.
  - **"0", "1"** - For the numerals, the intent is fairly easy to presume. These will be treated like a multiplier of 1. 
  - **"-", "+"** - This is a tougher call. However, the '+' and '-' are so close to the number 0 on most keyboards - and there are so few of these type of entries - that I'm going to take the risk and assume the intent was a multiplier of 1.
- - **all other codes**  - These will be omitted, but in a piecemeal fashion. i.e, I'm not going to drop the entire row, but simply not include the values when computing property damage or crop damage.
+ - **all other codes**  - These will be omitted, by zeroing out the data in a piecemeal fashion. i.e, I'm not going to drop the entire row, because there could be good crop data where there's bad property data and vice versa.
+ 
+Without further adieu, let's replace the codes with numbers.
+
+```{r}
+# -------Property Values--------------
+# for this to work, we need to see these as characters not factors
+# that's ok, we won't need the factors anymore anyway
+dmgSubset$PROPDMGEXP <- as.character(dmgSubset$PROPDMGEXP)
+dmgSubset$PROPDMGEXP[dmgSubset$PROPDMGEXP %in% c('','0','1','-','+')] <- '1'
+dmgSubset$PROPDMGEXP[dmgSubset$PROPDMGEXP %in% c('h', 'H')] <- '100'
+dmgSubset$PROPDMGEXP[dmgSubset$PROPDMGEXP %in% c('k', 'K')] <- '1000'
+dmgSubset$PROPDMGEXP[dmgSubset$PROPDMGEXP %in% c('m', 'M')] <- '1000000'
+dmgSubset$PROPDMGEXP[dmgSubset$PROPDMGEXP %in% c('b', 'B')] <- '1000000000'
+dmgSubset$PROPDMGEXP[dmgSubset$PROPDMGEXP %in% c('?', '2', '3', '4', '5', '6', '7', '8')] <- '0'
+# back to numeric so we can do math
+dmgSubset$PROPDMGEXP <- as.integer(dmgSubset$PROPDMGEXP)
+
+# -------Crop Values------------------
+dmgSubset$CROPDMGEXP <- as.character(dmgSubset$CROPDMGEXP)
+dmgSubset$CROPDMGEXP[dmgSubset$CROPDMGEXP %in% c('','0')] <- '1'
+dmgSubset$CROPDMGEXP[dmgSubset$CROPDMGEXP %in% c('h', 'H')] <- '100'
+dmgSubset$CROPDMGEXP[dmgSubset$CROPDMGEXP %in% c('k', 'K')] <- '1000'
+dmgSubset$CROPDMGEXP[dmgSubset$CROPDMGEXP %in% c('m', 'M')] <- '1000000'
+dmgSubset$CROPDMGEXP[dmgSubset$CROPDMGEXP %in% c('b', 'B')] <- '1000000000'
+dmgSubset$CROPDMGEXP[dmgSubset$CROPDMGEXP %in% c('?', '2')] <- '0'
+dmgSubset$CROPDMGEXP <- as.integer(dmgSubset$PROPDMGEXP)
+
+```
+
+Last thing to do is make a few new columns to reprepsent the total property damage and total crop damage, respectively, for each entry.
+
+```{r}
+
+```
 
 # Results
 Questions:
