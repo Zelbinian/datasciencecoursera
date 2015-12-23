@@ -16,7 +16,16 @@ fileName <- "StormData.bz2" # setting once to avoid typos
 download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",
                   fileName)
 rawStormData <- read.csv(fileName)
+rm(fileName) #don't need this variable anymore
 ```
+
+We're only concerned with storm effects in the United States proper, not the various islands and territories, so it's a good idea to eliminate them from the dataset under analysis. To do this, we subset the raw data based on the provided FIPS codes in column `STATE_`.
+
+```{r}
+stateStormData <- rawStormData[rawStormData$STATE_ <= 56,]
+```
+
+It's not immediately obvious why the number `56` is what we're using to subset, because there are 50 states. 51 was my first guess (to include the District of Colmbia), but according to the official [FIPS table](http://www.columbia.edu/~sue/state-fips.html), it's 56. (If you look closely, 5 numbers are omitted entirely; I'm sure there's a story there, but that's someone else's project!)
 
 # Results
 Questions:
