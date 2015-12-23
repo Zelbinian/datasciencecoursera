@@ -16,7 +16,7 @@ Downloading, unpacking, and loading in CSV data file.
 ```{r cache=TRUE}
 fileName <- "StormData.bz2" # setting once to avoid typos
 download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",
-                  fileName)
+                  fileName, "libcurl")
 rawStormData <- read.csv(fileName)
 rm(fileName) #don't need this variable anymore
 ```
