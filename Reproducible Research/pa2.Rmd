@@ -10,7 +10,7 @@ output: html_document
 
 # Data Processing
 
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE}
 library(magrittr)
 library(dplyr)
 library(lubridate)
@@ -40,7 +40,7 @@ We're only concerned with storm effects in the United States proper, not the var
 stateStormData <- rawStormData[rawStormData$STATE_ <= 56,]
 ```
 
-It's not immediately obvious where the number `56` comes from because there are 50 states. 51 was my first guess (to include the District of Colmbia), but according to the official [FIPS table](http://www.columbia.edu/~sue/state-fips.html), it's 56. (If you look closely, 5 numbers are omitted entirely; I'm sure there's a story there, but that's someone else's project!)
+It's not immediately obvious where the number `56` comes from because there are 50 states. 51 was my first guess (50 states + the District of Colmbia), but according to the official [FIPS table](http://www.columbia.edu/~sue/state-fips.html), it's 56. (If you look closely, 5 numbers are omitted entirely; I'm sure there's a story there, but that's someone else's project!)
 
 ### By Date
 
@@ -49,7 +49,7 @@ A lot of the data here is really old. There's a few reasons to be concerned abou
  - Inflation rates are a big deal. A $1M storm today is not the same as a $1M storm in 1955.
  - Methodologies for assessing storm damage may well have changed in the intervening years.
  
-We want a large enough subset of the data that we can be sure that we're getting a feel that we can generalize historically, but not so large that the above are issues. The turn of the centry is a psychologically statisfying number, we'll just have to hope it's statistically satisfying, too.
+We want a large enough subset of the data that we can be sure that we're getting results that we can generalize historically, but not so large that the above are issues. The turn of the century is a psychologically statisfying number, we'll just have to hope it's statistically satisfying, too.
 
 ```{r}
 stateStormData$BGN_DATE <- parse_date_time(stateStormData$BGN_DATE, "m/d/y H:M:S")
@@ -64,7 +64,7 @@ The `EVTYPE` field, representing the weather events we care about, is rather cha
 relStateStormData %>% group_by(EVTYPE) %>% summarize(no_rows = length(EVTYPE))
 ```
 
-159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we're doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. The official National Weather Service guidelines for events serve as a guide, but for ease of understanding we aim to be less granular than that. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)
+Gadzooks! 159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we're doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. The official National Weather Service guidelines for events serve as a guide, but for ease of understanding we aim to be less granular than that. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)
 
 ```{r}
 # first, trimming out whitespace and enforcing consistent capitalization
@@ -191,20 +191,36 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
 
 ```
 
-### By Relevant Data
+This reduces the 159 events to just 32, which are arguably logical and all clearly distinct from one another.
 
-Next, we need to reduce the data set to the observations that we care about with respect to each question. `EVTYPE` is important for both pieces of analysis but, now that we've already restricted the dataset by geography, most of the other 36 columns are just noise. For determining effects of various storms on population health, we only need to look at the `FATALITIES` and `INJURIES` columns.
+Now, at long last, we're ready to tackle the effects of all these weather events.
+
+# Results
+
+## Question 1
+
+> Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+
+First, we need to reduce the data set to the variables germaine to this question; most of the other 37 columns are just noise. For determining effects of various storms on population health, we only need to look at `FATALITIES` and `INJURIES` (and, of course, `EVTYPE`).
 
 ```{r}
-popHealthSubset <- subset(stateStormData, select = c(EVTYPE, FATALITIES, INJURIES))
+popHealthSubset <- subset(relStateStormData, select = c(EVTYPE, FATALITIES, INJURIES))
 
 ```
 
-And, luckily, there are no missing values in the dataset.
+Luckily, there are no missing values in the dataset, so there's very little additional processing we have to do.
 
 ```{r}
 sum(is.na(popHealthSubset$FATALITIES), is.na(popHealthSubset$INJURIES))
 ```
+
+There is one last consideration before plotting results: we have data for both fatalities and injuries, but we want to represent the *total* harm to human health as one data point. Additionally, it's not controversial to weight fatalities as more serious consequences than just injuries; a weather event that resulted in 200 fatalities is more harmful than one with 200 injuries and the data should reflect this. After playing with the data, the simple equation `harm = INJURIES + FATALITIES * 1.25` feels about right.
+
+
+
+## Question 2
+
+> Across the United States, which types of events have the greatest economic consequences?
 
 The subset we need for assessing economic consequences is slightly bigger, but not by much. The columns `PROPDMG` and `PROPDMGXP` together explain damaged to property;likewise `CROPDMG` and `CROPDMGEXP` explain damage to crops (in terms of dollar value loss).
 
@@ -219,7 +235,6 @@ And, again, we thank our lucky starts that we don't have to deal with any missin
 sum(is.na(dmgSubset$CROPDMG), is.na(dmgSubset$PROPDMG))
 ```
 
-### Showing You the Money
 
 No further processing is needed on the health subset, but the damage subset is a little strange. Likely in an effort to save a little space, instead of listing raw dollar values in one column the data set has each value represented in *two* columns. The `*DMG` columns have raw decimal numbers but `*DMGEXP` columns have a coded multiplier. For example, if, for a given obsevation, there's the number `25.00` in the `PROPDMG` column and the symbol `K` in the `PROPDMGEXP` column, K is an abbreviation for `1000`. So, for this example, the storm would have caused $25,000 in damage. It's relatively human-readable because the chosen codes are common abbreviations for large numbers, but it's not computer readable. That won't do for making pretty graphs!
 
@@ -270,10 +285,3 @@ Last thing to do is make a few new columns to reprepsent the total property dama
 dmgSubset <- mutate(dmgSubset, PROPTOT = PROPDMG * PROPDMGEXP,
                                CROPTOT = CROPDMG * CROPDMGEXP)
 ```
-
-
-# Results
-Questions:
-1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
-
-2. Across the United States, which types of events have the greatest economic consequences?
