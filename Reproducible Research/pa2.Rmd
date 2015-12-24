@@ -64,23 +64,97 @@ The `EVTYPE` field, representing the weather events we care about, is rather cha
 relStateStormData %>% group_by(EVTYPE) %>% summarize(no_rows = length(EVTYPE))
 ```
 
-159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we're doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)
+159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we're doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. The official National Weather Service guidelines for events serve as a guide, but for ease of understanding we aim to be less granular than that. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)
 
 ```{r}
 # first, trimming out whitespace and enforcing consistent capitalization
 relStateStormData$EVTYPE <- trimws(toupper(relStateStormData$EVTYPE))
 
+# -------remove noise-------------
+# these rows are just weird or indecipherable
+relStateStormData <- relStateStormData[!(relStateStormData$EVTYPE %in%
+                                             c("OTHER","NORTHERN LIGHTS", "RED FLAG CRITERIA")),]
+
 # -----same difference!-----------
-# coastal flooding and erosion
+# collapsing categories into ones I think make sense; all the manipulation is listed here
+# in case anyone disagrees with my refinements
+
+# COASTAL FLOODING/TIDES
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
-                             c("COASTAL FLOOD","BEACH EROSION", "CSTL FLOODING/EROSION")] <- "COASTAL FLOODING"
-# cooooooold
+                             c("COASTAL FLOOD","BEACH EROSION","CSTL FLOODING/EROSION",
+                               "HEAVY SURF/HIGH SURF","HIGH SURF","HEAVY SURF",
+                               "LAKESHORE FLOOD","HAZARDOUS SURF","HIGH WATER",
+                               "STORM SURGE/TIDE","ASTRONOMICAL LOW TIDE","ASTRONOMICAL HIGH TIDE",
+                               "STORM SURGE")] <- "COASTAL FLOODING/TIDES"
+
+# FREEZING TEMPERATURES/WIND CHILL
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
-                             c("COLD", "COLD WEATHER", "COLD WIND CHILL TEMPERATURES",
-                               "UNSEASONABLY COLD", "UNSEASONABLY COOL", "UNUSUALLY COLD")] <- "COLD/WIND CHILL"
-# flood stuff. i'm gonna say "abnormally wet" counts as a flood? probably "drowning" too
+                             c("COLD","COLD WEATHER","COLD WIND CHILL TEMPERATURES",
+                               "UNSEASONABLY COLD","UNSEASONABLY COOL","UNUSUALLY COLD",
+                               "FROST/FREEZE","EXTREME COLD/WIND CHILL","EXTREME COLD",
+                               "EXTREME WINDCHILL","EXTREME WINDCHILL TEMPERATURE",
+                               "FREEZE","FROST","HARD FREEZE","PROLONG COLD","RECORD COLD",
+                               "EXTREME WINDCHILL TEMPERATURES")] <- "FREEZING TEMPERATURES/WIND CHILL"
+
+# FLOOD
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
-                             c("ABNORMALLY WET","DROWNING")] <- "FLOOD"
+                             c("ABNORMALLY WET","DROWNING","URBAN/SML STREAM FLD",
+                               "EXTREMELY WET","SNOWMELT FLOODING")] <- "FLOOD"
+# DROUGHT
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("ABNORMALLY DRY","DRY","DRY CONDITIONS","DRY SPELL",
+                               "UNSEASONABLY DRY","VERY DRY","RECORD LOW RAINFALL",
+                               "SNOW DROUGHT","EXCESSIVE HEAT/DROUGHT")] <- "DROUGHT"
+
+# HIGH WIND
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("WND","STRONG WIND","WIND","STRONG WINDS","WIND ADVISORY",
+                               "WIND DAMAGE","GRADIENT WIND")] <- "HIGH WIND"
+
+# DUST STORM
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("BLOWING DUST")] <- "DUST STORM"
+
+# SNOW
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("ACCUMULATED SNOWFALL","EARLY SNOWFALL","FIRST SNOW",
+                               "LAKE-EFFECT SNOW","LAKE EFFECT SNOW","LATE SEASON SNOW",
+                               "LIGHT SNOW","MODERATE SNOWFALL","SNOW ADVISORY","SNOW SHOWERS",
+                               "SNOW SQUALLS","SNOW/BLOWING SNOW","UNUSUALLY LATE SNOW","HEAVY SNOW")] <- "SNOW"
+
+# DUST DEVIL
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("DUST DEVEL")] <- "DUST DEVIL"
+
+# TORNADO
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("FUNNEL CLOUD","WHIRLWIND","FUNNEL CLOUDS")] <- "TORNADO"
+
+# HIGH TEMPERATURES
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("EXCESSIVE HEAT","HEAT","RECORD HEAT")] <- "HIGH TEMPERATURES"
+
+# SLEET
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c()] <- "SLEET"
+
+# FREEZING RAIN
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("FREEZING DRIZZLE")] <- "FREEZING RAIN"
+
+# WINTRY MIX
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("FALLING SNOW/ICE","ICE/SNOW","SNOW/FREEZING RAIN","SNOW/SLEET",
+                               "MIXED PRECIPITATION","WINTER WEATHER MIX","WINTER WEATHER/MIX")] <- "WINTRY MIX"
+
+# ICE
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("BLACK ICE", "ICE ON ROAD","PATCHY ICE","ICY ROADS")] <- "ICY CONDITIONS"
+
+# FOG
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("DENSE FOG")] <- "FOG"
+
 ```
 
 ### By Relevant Data
