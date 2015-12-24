@@ -10,7 +10,7 @@ output: html_document
 
 # Data Processing
 
-```{r echo=FALSE, message=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(magrittr)
 library(dplyr)
 library(lubridate)
@@ -233,7 +233,7 @@ ggplot(weatherHarmIndex[1:10,], aes(EVTYPE, HARM_INDEX)) +
     geom_bar(stat = "identity", fill = "red") + 
     ggtitle("Weather Events Most Harmful to Human Health") +
     xlab("Weather Event") + ylab("Harm Index") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 65, hjust = 1))
 
 ```
 
@@ -244,7 +244,7 @@ ggplot(weatherHarmIndex[1:10,], aes(EVTYPE, HARM_INDEX)) +
 The subset we need for assessing economic consequences is slightly bigger, but not by much. The columns `PROPDMG` and `PROPDMGXP` together explain damaged to property;likewise `CROPDMG` and `CROPDMGEXP` explain damage to crops (in terms of dollar value loss).
 
 ```{r}
-dmgSubset <- subset(stateStormData, select = c(EVTYPE, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP))
+dmgSubset <- subset(relStateStormData, select = c(EVTYPE, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP))
 
 ```
 
@@ -305,24 +305,20 @@ dmgSubset <- mutate(dmgSubset, PROPTOT = PROPDMG * PROPDMGEXP,
                                CROPTOT = CROPDMG * CROPDMGEXP)
 ```
 
-From here the exercise is a almost mirror image of the harm exercise, above (except how the columns combine is more straightforward).
+From here the exercise is a almost mirror image of the harm exercise, above. How the columns combine is more straightforward, but we still have to do a little processing to represent the cost in billions.
+
 ```{r}
 # generate the event -> harm index table
 weatherCosts <- dmgSubset %>% group_by(EVTYPE) %>% 
-    summarize(TOTALCOST = sum(PROPTOT + CROPTOT))
+    summarize(TOTALCOST = sum(PROPTOT + CROPTOT)/ 1000000000)
 
 # sort from most costly to least
 weatherCosts <- weatherCosts[with(weatherCosts, order(TOTALCOST, decreasing = TRUE)),]
 
-# grab most and least costly events
-n <- nrow(weatherCosts)
-mostCostlyEvents <- weatherCosts[1:10,]
-leastCostlyEvents <- weatherCosts[(n-9):n,]
-
-# plot
-ggplot(mostHarmfulEvents, aes(EVTYPE, HARM_INDEX)) + 
+# plot the first 10 rows
+ggplot(weatherCosts[1:10,], aes(EVTYPE, TOTALCOST)) + 
     geom_bar(stat = "identity", fill = "red") + 
-    ggtitle("Weather Events Most Harmful to Human Health") +
-    xlab("Weather Event") + ylab("Harm Index") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    ggtitle("Most Costly Weather Events (Combined Property and Crop Damage)") +
+    xlab("Weather Event") + ylab("Cumulative Cost of Damage (in Billions)") +
+    theme(axis.text.x = element_text(angle = 65, hjust = 1))
 ```
