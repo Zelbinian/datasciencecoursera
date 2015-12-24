@@ -43,3 +43,9 @@ Temporary Items
 .apdisk
 .Rhistory
 ProgrammingAssignment2
+*.RData
+Reproducible Research/pa2_cache/html/unnamed-chunk-2_0bec69e042fa3db1da62777201ecf523.rdb
+*.rdx
+Reproducible Research/pa2_files/figure-html/unnamed-chunk-14-1.png
+Reproducible Research/pa2_files/figure-html/unnamed-chunk-9-1.png
+Reproducible Research/rsconnect/documents/pa2.Rmd/rpubs.com/rpubs/Publish Document.dcf
