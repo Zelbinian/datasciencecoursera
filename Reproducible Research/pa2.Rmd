@@ -236,6 +236,8 @@ ggplot(weatherHarmIndex[1:10,], aes(EVTYPE, HARM_INDEX)) +
 
 ```
 
+Fig 1: Tornados are the most harmful by a huge margin. That heat-related weather events are the next most-common cause of weather-related injury and death is legitimately surprising.
+
 ## Question 2
 
 > Across the United States, which types of events have the greatest economic consequences?
@@ -321,3 +323,5 @@ ggplot(weatherCosts[1:10,], aes(EVTYPE, TOTALCOST)) +
     xlab("Weather Event") + ylab("Cumulative Cost of Damage (in Billions)") +
     theme(axis.text.x = element_text(angle = 65, hjust = 1))
 ```
+
+Fig 2: Tropical Cyclones dwarf everything else in this category. Their cumulative economic damage is roughly equal to *the rest of the top 10 combined*.
