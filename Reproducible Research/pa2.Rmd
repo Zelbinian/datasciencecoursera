@@ -68,7 +68,7 @@ The `EVTYPE` field, representing the weather events we care about, is rather cha
 relStateStormData %>% group_by(EVTYPE) %>% summarize(no_rows = length(EVTYPE))
 ```
 
-Gadzooks! 159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we're doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. The official National Weather Service guidelines for events serve as a guide, but for ease of understanding we aim to be less granular than that. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)
+Gadzooks! 159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we're doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. The official National Weather Service categorization of events serve as a guide, but for ease of understanding we aim to be less granular than that. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)
 
 ```{r}
 # unfactoring the EVTYPE variable so this will all work
@@ -101,7 +101,8 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
                                "FROST/FREEZE","EXTREME COLD/WIND CHILL","EXTREME COLD",
                                "EXTREME WINDCHILL","EXTREME WINDCHILL TEMPERATURE",
                                "FREEZE","FROST","HARD FREEZE","PROLONG COLD","RECORD COLD",
-                               "EXTREME WINDCHILL TEMPERATURES","COLD/WIND CHILL","WIND CHILL")] <- "FREEZING TEMPERATURES/WIND CHILL"
+                               "EXTREME WINDCHILL TEMPERATURES","COLD/WIND CHILL",
+                               "WIND CHILL")] <- "FREEZING TEMPERATURES/WIND CHILL"
 
 # FLOOD
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
@@ -140,7 +141,8 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
                              c("ACCUMULATED SNOWFALL","EARLY SNOWFALL","FIRST SNOW",
                                "LAKE-EFFECT SNOW","LAKE EFFECT SNOW","LATE SEASON SNOW",
                                "LIGHT SNOW","MODERATE SNOWFALL","SNOW ADVISORY","SNOW SHOWERS",
-                               "SNOW SQUALLS","SNOW/BLOWING SNOW","UNUSUALLY LATE SNOW","HEAVY SNOW")] <- "SNOW"
+                               "SNOW SQUALLS","SNOW/BLOWING SNOW","UNUSUALLY LATE SNOW",
+                               "HEAVY SNOW")] <- "SNOW"
 
 # DUST DEVIL
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
@@ -221,7 +223,7 @@ Luckily, there are no missing values in the dataset, so there's very little addi
 sum(is.na(popHealthSubset$FATALITIES), is.na(popHealthSubset$INJURIES))
 ```
 
-There is one last consideration before plotting results: we have data for both fatalities and injuries, but we want to represent the *total* harm to human health as one data point. Additionally, it's not controversial to weight fatalities as more serious consequences than just injuries; a weather event that resulted in 200 fatalities is more harmful than one with 200 injuries and the data should reflect this. After playing with the data, the simple equation `harm = INJURIES + FATALITIES * 1.25` feels about right. Now let's see what the top 10 most injurious weather events are.
+There is one last consideration before plotting results: we have data for both fatalities and injuries, but we want to represent the *total* harm to human health as one data point. Additionally, it's not controversial to weight fatalities as more serious consequences than just injuries; a weather event that resulted in 200 fatalities is more harmful than one with 200 injuries and the data should reflect this. After playing with the data, defining a harm index via the simple equation `HARM_INDEX = INJURIES + FATALITIES * 1.25` feels about right. Now let's see what the top 10 most injurious weather events are.
 
 ```{r}
 # generate the event -> harm index table
@@ -247,7 +249,7 @@ Fig 1: Tornados are the most harmful by a huge margin. That heat-related weather
 
 > Across the United States, which types of events have the greatest economic consequences?
 
-The subset we need for assessing economic consequences is slightly bigger, but not by much. The columns `PROPDMG` and `PROPDMGXP` together explain damaged to property;likewise `CROPDMG` and `CROPDMGEXP` explain damage to crops (in terms of dollar value loss).
+The subset we need for assessing economic consequences is slightly bigger, but not by much. The columns `PROPDMG` and `PROPDMGXP` together explain damaged to property; likewise `CROPDMG` and `CROPDMGEXP` explain damage to crops (in terms of dollar value loss).
 
 ```{r}
 dmgSubset <- subset(relStateStormData, select = c(EVTYPE, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP))
@@ -263,11 +265,7 @@ sum(is.na(dmgSubset$CROPDMG), is.na(dmgSubset$PROPDMG))
 
 Subsetting for the health/harm data was straightforward, but the damage subset is a little strange. Likely in an effort to save a little space, instead of listing raw dollar values in one column the data set has each value represented in *two* columns. The `*DMG` columns have raw decimal numbers but `*DMGEXP` columns have a coded multiplier. For example, if, for a given obsevation, there's the number `25.00` in the `PROPDMG` column and the symbol `K` in the `PROPDMGEXP` column, K is an abbreviation for `1000`. So, for this example, the storm would have caused $25,000 in damage. It's relatively human-readable because the chosen codes are common abbreviations for large numbers, but it's not computer readable. That won't do for making pretty graphs!
 
-However, this is also when we start to have to deal some data entry errors. Officially, 'H', 'K', 'M', and 'B' (standing for 'Hundreds,' 'Thousands,' 'Millions,' and 'Billions,' respectively) and a blank (meaning a mult. of 1) are supposed to be the only codes. But if we examine all the factors for the `PROPDMGEXP` variable in the `dmgSubset` data, we see this isn't quite the case. (The other data set has some similar weirdness, but not nearly as much.)
-
-```{r}
-dmgSubset %>% group_by(PROPDMGEXP) %>% summarize(no_rows = length(PROPDMGEXP))
-```
+Additionally, there are a few data entry errors to deal with. Officially, 'H', 'K', 'M', and 'B' (standing for 'Hundreds,' 'Thousands,' 'Millions,' and 'Billions,' respectively) and a blank (meaning a mult. of 1) are supposed to be the only codes. But if we examine all the factors for the `PROPDMGEXP` variable in the `dmgSubset` data, this isn't quite the case. (The other data set has some similar weirdness, but not nearly as much.)
 
 Capitalization errors are easy to deal with. The rest, though... One row may only be a $20 line-item. With almost 900K observations that doesn't matter so much. Or it may be a *$20B* line-item, and then it matters *a lot*! For the most part, I'm deciding to omit the observations because, if I can't tell the intent then I shouldn't assume it. Here's what I will be including in the analysis and why:
 

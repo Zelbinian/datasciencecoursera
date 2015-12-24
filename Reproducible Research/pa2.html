@@ -125,7 +125,7 @@ relStateStormData &lt;- stateStormData[year(stateStormData$BGN_DATE) &gt; 2000,]
 ## 9               BLACK ICE       6
 ## 10               BLIZZARD    2156
 ## ..                    ...     ...</code></pre>
-<p>Gadzooks! 159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we’re doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. The official National Weather Service guidelines for events serve as a guide, but for ease of understanding we aim to be less granular than that. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)</p>
+<p>Gadzooks! 159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we’re doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. The official National Weather Service categorization of events serve as a guide, but for ease of understanding we aim to be less granular than that. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)</p>
 <pre class="r"><code># unfactoring the EVTYPE variable so this will all work
 relStateStormData$EVTYPE &lt;- as.character(relStateStormData$EVTYPE)
 
@@ -156,7 +156,8 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
                                &quot;FROST/FREEZE&quot;,&quot;EXTREME COLD/WIND CHILL&quot;,&quot;EXTREME COLD&quot;,
                                &quot;EXTREME WINDCHILL&quot;,&quot;EXTREME WINDCHILL TEMPERATURE&quot;,
                                &quot;FREEZE&quot;,&quot;FROST&quot;,&quot;HARD FREEZE&quot;,&quot;PROLONG COLD&quot;,&quot;RECORD COLD&quot;,
-                               &quot;EXTREME WINDCHILL TEMPERATURES&quot;,&quot;COLD/WIND CHILL&quot;,&quot;WIND CHILL&quot;)] &lt;- &quot;FREEZING TEMPERATURES/WIND CHILL&quot;
+                               &quot;EXTREME WINDCHILL TEMPERATURES&quot;,&quot;COLD/WIND CHILL&quot;,
+                               &quot;WIND CHILL&quot;)] &lt;- &quot;FREEZING TEMPERATURES/WIND CHILL&quot;
 
 # FLOOD
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
@@ -195,7 +196,8 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
                              c(&quot;ACCUMULATED SNOWFALL&quot;,&quot;EARLY SNOWFALL&quot;,&quot;FIRST SNOW&quot;,
                                &quot;LAKE-EFFECT SNOW&quot;,&quot;LAKE EFFECT SNOW&quot;,&quot;LATE SEASON SNOW&quot;,
                                &quot;LIGHT SNOW&quot;,&quot;MODERATE SNOWFALL&quot;,&quot;SNOW ADVISORY&quot;,&quot;SNOW SHOWERS&quot;,
-                               &quot;SNOW SQUALLS&quot;,&quot;SNOW/BLOWING SNOW&quot;,&quot;UNUSUALLY LATE SNOW&quot;,&quot;HEAVY SNOW&quot;)] &lt;- &quot;SNOW&quot;
+                               &quot;SNOW SQUALLS&quot;,&quot;SNOW/BLOWING SNOW&quot;,&quot;UNUSUALLY LATE SNOW&quot;,
+                               &quot;HEAVY SNOW&quot;)] &lt;- &quot;SNOW&quot;
 
 # DUST DEVIL
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
@@ -266,7 +268,7 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
 <p>Luckily, there are no missing values in the dataset, so there’s very little additional processing we have to do.</p>
 <pre class="r"><code>sum(is.na(popHealthSubset$FATALITIES), is.na(popHealthSubset$INJURIES))</code></pre>
 <pre><code>## [1] 0</code></pre>
-<p>There is one last consideration before plotting results: we have data for both fatalities and injuries, but we want to represent the <em>total</em> harm to human health as one data point. Additionally, it’s not controversial to weight fatalities as more serious consequences than just injuries; a weather event that resulted in 200 fatalities is more harmful than one with 200 injuries and the data should reflect this. After playing with the data, the simple equation <code>harm = INJURIES + FATALITIES * 1.25</code> feels about right. Now let’s see what the top 10 most injurious weather events are.</p>
+<p>There is one last consideration before plotting results: we have data for both fatalities and injuries, but we want to represent the <em>total</em> harm to human health as one data point. Additionally, it’s not controversial to weight fatalities as more serious consequences than just injuries; a weather event that resulted in 200 fatalities is more harmful than one with 200 injuries and the data should reflect this. After playing with the data, defining a harm index via the simple equation <code>HARM_INDEX = INJURIES + FATALITIES * 1.25</code> feels about right. Now let’s see what the top 10 most injurious weather events are.</p>
 <pre class="r"><code># generate the event -&gt; harm index table
 weatherHarmIndex &lt;- popHealthSubset %&gt;% group_by(EVTYPE) %&gt;% 
     summarize(HARM_INDEX = sum(INJURIES + FATALITIES * 1.25))
@@ -289,23 +291,13 @@ ggplot(weatherHarmIndex[1:10,], aes(EVTYPE, HARM_INDEX)) +
 <blockquote>
 <p>Across the United States, which types of events have the greatest economic consequences?</p>
 </blockquote>
-<p>The subset we need for assessing economic consequences is slightly bigger, but not by much. The columns <code>PROPDMG</code> and <code>PROPDMGXP</code> together explain damaged to property;likewise <code>CROPDMG</code> and <code>CROPDMGEXP</code> explain damage to crops (in terms of dollar value loss).</p>
+<p>The subset we need for assessing economic consequences is slightly bigger, but not by much. The columns <code>PROPDMG</code> and <code>PROPDMGXP</code> together explain damaged to property; likewise <code>CROPDMG</code> and <code>CROPDMGEXP</code> explain damage to crops (in terms of dollar value loss).</p>
 <pre class="r"><code>dmgSubset &lt;- subset(relStateStormData, select = c(EVTYPE, PROPDMG, PROPDMGEXP, CROPDMG, CROPDMGEXP))</code></pre>
 <p>And, again, we thank our lucky stars that we don’t have to deal with any missing data.</p>
 <pre class="r"><code>sum(is.na(dmgSubset$CROPDMG), is.na(dmgSubset$PROPDMG))</code></pre>
 <pre><code>## [1] 0</code></pre>
 <p>Subsetting for the health/harm data was straightforward, but the damage subset is a little strange. Likely in an effort to save a little space, instead of listing raw dollar values in one column the data set has each value represented in <em>two</em> columns. The <code>*DMG</code> columns have raw decimal numbers but <code>*DMGEXP</code> columns have a coded multiplier. For example, if, for a given obsevation, there’s the number <code>25.00</code> in the <code>PROPDMG</code> column and the symbol <code>K</code> in the <code>PROPDMGEXP</code> column, K is an abbreviation for <code>1000</code>. So, for this example, the storm would have caused $25,000 in damage. It’s relatively human-readable because the chosen codes are common abbreviations for large numbers, but it’s not computer readable. That won’t do for making pretty graphs!</p>
-<p>However, this is also when we start to have to deal some data entry errors. Officially, ‘H’, ‘K’, ‘M’, and ‘B’ (standing for ‘Hundreds,’ ‘Thousands,’ ‘Millions,’ and ‘Billions,’ respectively) and a blank (meaning a mult. of 1) are supposed to be the only codes. But if we examine all the factors for the <code>PROPDMGEXP</code> variable in the <code>dmgSubset</code> data, we see this isn’t quite the case. (The other data set has some similar weirdness, but not nearly as much.)</p>
-<pre class="r"><code>dmgSubset %&gt;% group_by(PROPDMGEXP) %&gt;% summarize(no_rows = length(PROPDMGEXP))</code></pre>
-<pre><code>## Source: local data frame [5 x 2]
-## 
-##   PROPDMGEXP no_rows
-##       (fctr)   (int)
-## 1             157570
-## 2          0       1
-## 3          B      28
-## 4          K  308489
-## 5          M    5216</code></pre>
+<p>Additionally, there are a few data entry errors to deal with. Officially, ‘H’, ‘K’, ‘M’, and ‘B’ (standing for ‘Hundreds,’ ‘Thousands,’ ‘Millions,’ and ‘Billions,’ respectively) and a blank (meaning a mult. of 1) are supposed to be the only codes. But if we examine all the factors for the <code>PROPDMGEXP</code> variable in the <code>dmgSubset</code> data, this isn’t quite the case. (The other data set has some similar weirdness, but not nearly as much.)</p>
 <p>Capitalization errors are easy to deal with. The rest, though… One row may only be a $20 line-item. With almost 900K observations that doesn’t matter so much. Or it may be a <em>$20B</em> line-item, and then it matters <em>a lot</em>! For the most part, I’m deciding to omit the observations because, if I can’t tell the intent then I shouldn’t assume it. Here’s what I will be including in the analysis and why:</p>
 <ul>
 <li><strong>lowercase codes</strong> - This intent here is obvious, but I’m calling it out to be thorough. These will be treated exactly like their uppercase brethren.</li>
