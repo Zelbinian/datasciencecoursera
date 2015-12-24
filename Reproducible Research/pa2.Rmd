@@ -5,7 +5,11 @@ output: html_document
 ---
 
 # Synopsis
-(at most 10 completely sentences summarizing analysis)
+What types of weather are most life-threatening and dangerous? What types are most likely to destroy crops, homes, and cities? This analysis focused on the last 15 years of weather data, exploring the cumulative cost of different types of weather events in terms of both human life and economic impact. Because climate change seemingly brings more severe weather every year, the cumulative impact of recent years is more useful than results from any given year (although a year-over-year predictive analysis would be a logical next step).
+
+Additionally, a lot of effort was put into re-classifying the weather events, not only to correct data entry errors, but also to collapse event types into broader categories than the National Weather Service uses. These are hopefully more useful and certainly easier to absorb at a glance.
+
+Broadly speaking, it turns out that high winds - which are technically represented 4 different ways in Fig 1. - heat, and flooding are the areas of greatest concern with respect to injuries and fatalities. But tornadoes are far and away the most hazardous events. Regarding economic consequences, high winds and water damage is the broad theme, making it no surprise that tropical cyclones cause *4 times* the property and crop damage as the next most costly weather phonomena.
 
 # Data Processing
 
