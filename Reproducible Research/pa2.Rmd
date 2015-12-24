@@ -229,6 +229,8 @@ n <- nrow(weatherHarmIndex)
 mostHarmfulEvents <- weatherHarmIndex[1:10,]
 leastHarmfulEvents <- weatherHarmIndex[(n-9):n,]
 
+# plot
+
 ```
 
 ## Question 2
@@ -242,14 +244,14 @@ dmgSubset <- subset(stateStormData, select = c(EVTYPE, PROPDMG, PROPDMGEXP, CROP
 
 ```
 
-And, again, we thank our lucky starts that we don't have to deal with any missing data.
+And, again, we thank our lucky stars that we don't have to deal with any missing data.
 
 ```{r}
 sum(is.na(dmgSubset$CROPDMG), is.na(dmgSubset$PROPDMG))
 ```
 
 
-No further processing is needed on the health subset, but the damage subset is a little strange. Likely in an effort to save a little space, instead of listing raw dollar values in one column the data set has each value represented in *two* columns. The `*DMG` columns have raw decimal numbers but `*DMGEXP` columns have a coded multiplier. For example, if, for a given obsevation, there's the number `25.00` in the `PROPDMG` column and the symbol `K` in the `PROPDMGEXP` column, K is an abbreviation for `1000`. So, for this example, the storm would have caused $25,000 in damage. It's relatively human-readable because the chosen codes are common abbreviations for large numbers, but it's not computer readable. That won't do for making pretty graphs!
+Subsetting for the health/harm data was straightforward, but the damage subset is a little strange. Likely in an effort to save a little space, instead of listing raw dollar values in one column the data set has each value represented in *two* columns. The `*DMG` columns have raw decimal numbers but `*DMGEXP` columns have a coded multiplier. For example, if, for a given obsevation, there's the number `25.00` in the `PROPDMG` column and the symbol `K` in the `PROPDMGEXP` column, K is an abbreviation for `1000`. So, for this example, the storm would have caused $25,000 in damage. It's relatively human-readable because the chosen codes are common abbreviations for large numbers, but it's not computer readable. That won't do for making pretty graphs!
 
 However, this is also when we start to have to deal some data entry errors. Officially, 'H', 'K', 'M', and 'B' (standing for 'Hundreds,' 'Thousands,' 'Millions,' and 'Billions,' respectively) and a blank (meaning a mult. of 1) are supposed to be the only codes. But if we examine all the factors for the `PROPDMGEXP` variable in the `dmgSubset` data, we see this isn't quite the case. (The other data set has some similar weirdness, but not nearly as much.)
 
@@ -297,4 +299,21 @@ Last thing to do is make a few new columns to reprepsent the total property dama
 ```{r}
 dmgSubset <- mutate(dmgSubset, PROPTOT = PROPDMG * PROPDMGEXP,
                                CROPTOT = CROPDMG * CROPDMGEXP)
+```
+
+From here the exercise is a almost mirror image of the harm exercise, above (except how the columns combine is more straightforward).
+```{r}
+# generate the event -> harm index table
+weatherCosts <- dmgSubset %>% group_by(EVTYPE) %>% 
+    summarize(TOTALCOST = sum(PROPTOT + CROPTOT))
+
+# sort from most costly to least
+weatherCosts <- weatherCosts[with(weatherCosts, order(TOTALCOST, decreasing = TRUE)),]
+
+# grab most and least costly events
+n <- nrow(weatherCosts)
+mostCostlyEvents <- weatherCosts[1:10,]
+leastCostlyEvents <- weatherCosts[(n-9):n,]
+
+# plot
 ```
