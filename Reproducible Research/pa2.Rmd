@@ -67,6 +67,9 @@ relStateStormData %>% group_by(EVTYPE) %>% summarize(no_rows = length(EVTYPE))
 Gadzooks! 159 distinct entries! Clearly there are typos and silly entires and different casing and lions and tigers and bears. What follows is a series of simple transformations to try to categorize things in a more manageable way. In general, what we're doing is looking to see if any low-occurence entries are very similar to any high-occurence entries, and then we collapse them together. The official National Weather Service guidelines for events serve as a guide, but for ease of understanding we aim to be less granular than that. Inline comments will further explain reasoning where appropriate. (You are forgiven for falling asleep through this.)
 
 ```{r}
+# unfactoring the EVTYPE variable so this will all work
+relStateStormData$EVTYPE <- as.character(relStateStormData$EVTYPE)
+
 # first, trimming out whitespace and enforcing consistent capitalization
 relStateStormData$EVTYPE <- trimws(toupper(relStateStormData$EVTYPE))
 
