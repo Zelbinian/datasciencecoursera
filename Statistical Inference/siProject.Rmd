@@ -5,4 +5,12 @@ date: "December 24, 2015"
 output: html_document
 ---
 
+# Overview
 
+# Simulations
+
+# Sample Mean vs Theoretical Mean
+
+# Sample Variance vs Theoretical Variance
+
+# Distrubution
