@@ -228,6 +228,7 @@ weatherHarmIndex <- popHealthSubset %>% group_by(EVTYPE) %>%
 weatherHarmIndex <- weatherHarmIndex[with(weatherHarmIndex, order(HARM_INDEX, decreasing = TRUE)),]
 
 # plot the first 10 rows
+weatherHarmIndex$EVTYPE <- with(weatherHarmIndex, reorder(EVTYPE, HARM_INDEX, function (x) -x))
 ggplot(weatherHarmIndex[1:10,], aes(EVTYPE, HARM_INDEX)) + 
     geom_bar(stat = "identity", fill = "red") + 
     ggtitle("Weather Events Most Harmful to Human Health") +
@@ -317,6 +318,7 @@ weatherCosts <- dmgSubset %>% group_by(EVTYPE) %>%
 weatherCosts <- weatherCosts[with(weatherCosts, order(TOTALCOST, decreasing = TRUE)),]
 
 # plot the first 10 rows
+weatherCosts$EVTYPE <- with(weatherCosts, reorder(EVTYPE, TOTALCOST, function (x) -x))
 ggplot(weatherCosts[1:10,], aes(EVTYPE, TOTALCOST)) + 
     geom_bar(stat = "identity", fill = "red") + 
     ggtitle("Most Costly Weather Events (Combined Property and Crop Damage)") +
