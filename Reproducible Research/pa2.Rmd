@@ -1,5 +1,5 @@
 ---
-title: ''
+title: 'The Effects of Various Weather Events on Public Health and the Economy'
 author: "Dustin L. Hodge"
 date: "Monday, October 19, 2015"
 output: html_document
