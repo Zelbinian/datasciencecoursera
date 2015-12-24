@@ -85,7 +85,7 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
                                "HEAVY SURF/HIGH SURF","HIGH SURF","HEAVY SURF",
                                "LAKESHORE FLOOD","HAZARDOUS SURF","HIGH WATER",
                                "STORM SURGE/TIDE","ASTRONOMICAL LOW TIDE","ASTRONOMICAL HIGH TIDE",
-                               "STORM SURGE")] <- "COASTAL FLOODING/TIDES"
+                               "STORM SURGE","COASTAL FLOODING","ROGUE WAVE")] <- "COASTAL FLOODING/TIDES"
 
 # FREEZING TEMPERATURES/WIND CHILL
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
@@ -94,12 +94,24 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
                                "FROST/FREEZE","EXTREME COLD/WIND CHILL","EXTREME COLD",
                                "EXTREME WINDCHILL","EXTREME WINDCHILL TEMPERATURE",
                                "FREEZE","FROST","HARD FREEZE","PROLONG COLD","RECORD COLD",
-                               "EXTREME WINDCHILL TEMPERATURES")] <- "FREEZING TEMPERATURES/WIND CHILL"
+                               "EXTREME WINDCHILL TEMPERATURES","COLD/WIND CHILL","WIND CHILL")] <- "FREEZING TEMPERATURES/WIND CHILL"
 
 # FLOOD
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
                              c("ABNORMALLY WET","DROWNING","URBAN/SML STREAM FLD",
                                "EXTREMELY WET","SNOWMELT FLOODING")] <- "FLOOD"
+# HEAVY RAIN
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("RAIN","HEAVY RAIN EFFECTS","MONTHLY PRECIPITATION")] <- "HEAVY RAIN"
+
+# MUDSLIDE
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("MUD SLIDE")] <- "MUDSLIDE"
+
+# RIP CURRENT
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("RIP CURRENTS", "RIPCURRENT")] <- "RIP CURRENT"
+
 # DROUGHT
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
                              c("ABNORMALLY DRY","DRY","DRY CONDITIONS","DRY SPELL",
@@ -109,7 +121,8 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
 # HIGH WIND
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
                              c("WND","STRONG WIND","WIND","STRONG WINDS","WIND ADVISORY",
-                               "WIND DAMAGE","GRADIENT WIND")] <- "HIGH WIND"
+                               "WIND DAMAGE","GRADIENT WIND","GUSTY LAKE WIND","GUSTY WIND",
+                               "NON-TSTM WIND","NON TSTM WIND","GUSTY WINDS")] <- "HIGH WIND"
 
 # DUST STORM
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
@@ -128,32 +141,53 @@ relStateStormData$EVTYPE[relStateStormData$EVTYPE %in%
 
 # TORNADO
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
-                             c("FUNNEL CLOUD","WHIRLWIND","FUNNEL CLOUDS")] <- "TORNADO"
+                             c("FUNNEL CLOUD","WHIRLWIND","FUNNEL CLOUDS","TORNADO DEBRIS",
+                               "WATERSPOUT")] <- "TORNADO"
 
 # HIGH TEMPERATURES
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
-                             c("EXCESSIVE HEAT","HEAT","RECORD HEAT")] <- "HIGH TEMPERATURES"
+                             c("EXCESSIVE HEAT","HEAT","RECORD HEAT","UNSEASONABLY HOT",
+                               "PROLONG WARMTH","RECORD WARMTH","UNSEASONABLY WARM",
+                               "VERY WARM")] <- "HIGH TEMPERATURES"
 
-# SLEET
+# HAIL
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
-                             c()] <- "SLEET"
+                             c("SMALL HAIL")] <- "HAIL"
 
-# FREEZING RAIN
-relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
-                             c("FREEZING DRIZZLE")] <- "FREEZING RAIN"
-
-# WINTRY MIX
-relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
-                             c("FALLING SNOW/ICE","ICE/SNOW","SNOW/FREEZING RAIN","SNOW/SLEET",
-                               "MIXED PRECIPITATION","WINTER WEATHER MIX","WINTER WEATHER/MIX")] <- "WINTRY MIX"
-
-# ICE
+# ICY CONDITIONS
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
                              c("BLACK ICE", "ICE ON ROAD","PATCHY ICE","ICY ROADS")] <- "ICY CONDITIONS"
 
 # FOG
 relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
                              c("DENSE FOG")] <- "FOG"
+
+# THUNDERSTORM
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("THUNDERSTORM WIND","TSTM WIND","TSTM WIND/HAIL","THUNDERSTORMS",
+                               "GUSTY THUNDERSTORM WIND","GUSTY THUNDERSTORM WINDS",
+                               "SEVERE THUNDERSTORMS")] <- "THUNDERSTORM"
+
+# WINTER STORM
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("FALLING SNOW/ICE","ICE/SNOW","SNOW/FREEZING RAIN","SNOW/SLEET",
+                               "MIXED PRECIPITATION","WINTER WEATHER MIX","WINTER WEATHER/MIX",
+                               "WINTER WEATHER","WINTRY MIX","ICE STORM","FREEZING DRIZZLE",
+                               "LIGHT FREEZING RAIN","FREEZING RAIN","SLEET STORM","SLEET")] <- "WINTER STORM"
+
+# WILDFIRE
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("BRUSH FIRE","WILD/FOREST FIRE")] <- "WILDFIRE"
+
+# SMOKE
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("DENSE SMOKE")] <- "SMOKE"
+
+# TROPICAL CYCLONE 
+# (this is the broader term for hurricanes, typhoons, tropical storms, etc)
+relStateStormData$EVTYPE[relStateStormData$EVTYPE %in% 
+                             c("HURRICANE","HURRICANE/TYPHOON","TROPICAL DEPRESSION",
+                               "TROPICAL STORM")] <- "TROPICAL CYCLONE"
 
 ```
 
