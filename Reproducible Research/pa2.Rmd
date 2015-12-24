@@ -214,9 +214,22 @@ Luckily, there are no missing values in the dataset, so there's very little addi
 sum(is.na(popHealthSubset$FATALITIES), is.na(popHealthSubset$INJURIES))
 ```
 
-There is one last consideration before plotting results: we have data for both fatalities and injuries, but we want to represent the *total* harm to human health as one data point. Additionally, it's not controversial to weight fatalities as more serious consequences than just injuries; a weather event that resulted in 200 fatalities is more harmful than one with 200 injuries and the data should reflect this. After playing with the data, the simple equation `harm = INJURIES + FATALITIES * 1.25` feels about right.
+There is one last consideration before plotting results: we have data for both fatalities and injuries, but we want to represent the *total* harm to human health as one data point. Additionally, it's not controversial to weight fatalities as more serious consequences than just injuries; a weather event that resulted in 200 fatalities is more harmful than one with 200 injuries and the data should reflect this. After playing with the data, the simple equation `harm = INJURIES + FATALITIES * 1.25` feels about right. Now let's see what the top 10 most and least injurious weather events are.
 
+```{r}
+# generate the event -> harm index table
+weatherHarmIndex <- popHealthSubset %>% group_by(EVTYPE) %>% 
+    summarize(HARM_INDEX = sum(INJURIES + FATALITIES * 1.25))
 
+# sort from most harmful to least
+weatherHarmIndex <- weatherHarmIndex[with(weatherHarmIndex, order(HARM_INDEX, decreasing = TRUE)),]
+
+# grab most and least harmful events
+n <- nrow(weatherHarmIndex)
+mostHarmfulEvents <- weatherHarmIndex[1:10,]
+leastHarmfulEvents <- weatherHarmIndex[(n-9):n,]
+
+```
 
 ## Question 2
 
