@@ -26,8 +26,9 @@ ggplot(as.data.frame(means), aes(x = means)) +
     geom_histogram(binwidth = .1, fill = "#7e7e7e", color = "#d3d3d3") +
     ggtitle("Histogram of simulation values") +
     geom_vline(xintercept = tMean, color = "red") + 
-    geom_point(aes(x = sMean, y = 20, size = 2), color = "blue", show_guide = FALSE)
-
+    geom_point(aes(x = sMean, y = 20, size = 2), color = "blue", show_guide = FALSE) +
+    annotate("text", x = sMean + .4, y = 20, label = "Sample mean", color = "blue") +
+    annotate("text", x = tMean + .5, y = 55, label = "Theoretical mean", color = "red")
 ```
 
 # Sample Variance vs Theoretical Variance
