@@ -7,8 +7,7 @@ output: html_document
 
 # Overview
 
-# Simulations
-
+# Preparing simulations
 ```{r simulations}
 library(ggplot2)
 
@@ -16,13 +15,20 @@ means <- NULL
 sims <- 1000; n <- 40; lambda = 0.2
 
 for (i in 1:sims) means <- c(means, mean(rexp(n,lambda)))
-
-ggplot(as.data.frame(means), aes(x = means)) +
-    geom_histogram()
-
 ```
 
 # Sample Mean vs Theoretical Mean
+```{r means}
+
+tMean <- 1/lambda; sMean <- mean(means)
+
+ggplot(as.data.frame(means), aes(x = means)) +
+    geom_histogram(binwidth = .1, fill = "#7e7e7e", color = "#d3d3d3") +
+    ggtitle("Histogram of simulation values") +
+    geom_vline(xintercept = tMean, color = "red") + 
+    geom_point(aes(x = sMean, y = 20, size = 2), color = "blue", show_guide = FALSE)
+
+```
 
 # Sample Variance vs Theoretical Variance
 
