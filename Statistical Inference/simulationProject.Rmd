@@ -9,6 +9,19 @@ output: html_document
 
 # Simulations
 
+```{r simulations}
+library(ggplot2)
+
+means <- NULL
+sims <- 1000; n <- 40; lambda = 0.2
+
+for (i in 1:sims) means <- c(means, mean(rexp(n,lambda)))
+
+ggplot(as.data.frame(means), aes(x = means)) +
+    geom_histogram()
+
+```
+
 # Sample Mean vs Theoretical Mean
 
 # Sample Variance vs Theoretical Variance
